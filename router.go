@@ -329,7 +329,7 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	if root := r.trees[req.Method]; root != nil {
 		if handle, ps, tsr := root.getValue(path); handle != nil {
-			handle.ServeHTTP(w, req.WithContext(withParams(req.Context(), ps)))
+			handle.ServeHTTP(w, req.WithContext(WithParams(req.Context(), ps)))
 			return
 		} else if req.Method != "CONNECT" && path != "/" {
 			code := 301 // Permanent redirect, request with GET method

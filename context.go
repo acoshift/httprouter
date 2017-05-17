@@ -4,14 +4,15 @@ import "context"
 
 type paramsKey struct{}
 
-// GetParams gets params from context
+// WithParams adds the params into the context. A modified context is returned.
+func WithParams(parent context.Context, ps Params) context.Context {
+	return context.WithValue(parent, paramsKey{}, ps)
+}
+
+// GetParams gets params from context.
 func GetParams(ctx context.Context) Params {
 	ps, _ := ctx.Value(paramsKey{}).(Params)
 	return ps
-}
-
-func withParams(parent context.Context, ps Params) context.Context {
-	return context.WithValue(parent, paramsKey{}, ps)
 }
 
 // GetParam gets a param by name from context

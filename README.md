@@ -54,8 +54,8 @@ func Hello(w http.ResponseWriter, r *http.Request) {
 
 func main() {
     router := httprouter.New()
-    router.GET("/", http.HandlerFunc(Index))
-    router.GET("/hello/:name", http.HandlerFunc(Hello))
+    router.Get("/", http.HandlerFunc(Index))
+    router.Get("/hello/:name", http.HandlerFunc(Hello))
 
     log.Fatal(http.ListenAndServe(":8080", router))
 }
@@ -166,8 +166,8 @@ func (hs HostSwitch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func main() {
 	// Initialize a router as usual
 	router := httprouter.New()
-	router.GET("/", Index)
-	router.GET("/hello/:name", Hello)
+	router.Get("/", Index)
+	router.Get("/hello/:name", Hello)
 
 	// Make a new HostSwitch and insert the router (our http handler)
 	// for example.com and port 12345
@@ -223,8 +223,8 @@ func main() {
 	pass := "secret!"
 
 	router := httprouter.New()
-	router.GET("/", http.HandlerFunc(Index))
-	router.GET("/protected/", BasicAuth(http.HandlerFunc(Protected), user, pass))
+	router.Get("/", http.HandlerFunc(Index))
+	router.Get("/protected/", BasicAuth(http.HandlerFunc(Protected), user, pass))
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 }

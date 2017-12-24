@@ -27,8 +27,8 @@
 //
 //  func main() {
 //      router := httprouter.New()
-//      router.GET("/", http.HandlerFunc(Index))
-//      router.GET("/hello/:name", http.HandlerFunc(Hello))
+//      router.Get("/", http.HandlerFunc(Index))
+//      router.Get("/hello/:name", http.HandlerFunc(Hello))
 //
 //      log.Fatal(http.ListenAndServe(":8080", router))
 //  }
@@ -172,39 +172,39 @@ func New() *Router {
 	}
 }
 
-// GET is a shortcut for router.Handle("GET", path, handle)
-func (r *Router) GET(path string, handle http.Handler) {
-	r.Handle("GET", path, handle)
+// Get is a shortcut for router.Handle(http.MethodGet, path, handle)
+func (r *Router) Get(path string, handle http.Handler) {
+	r.Handle(http.MethodGet, path, handle)
 }
 
-// HEAD is a shortcut for router.Handle("HEAD", path, handle)
-func (r *Router) HEAD(path string, handle http.Handler) {
-	r.Handle("HEAD", path, handle)
+// Head is a shortcut for router.Handle(http.MethodHead, path, handle)
+func (r *Router) Head(path string, handle http.Handler) {
+	r.Handle(http.MethodHead, path, handle)
 }
 
-// OPTIONS is a shortcut for router.Handle("OPTIONS", path, handle)
-func (r *Router) OPTIONS(path string, handle http.Handler) {
-	r.Handle("OPTIONS", path, handle)
+// Options is a shortcut for router.Handle(http.MethodOptions, path, handle)
+func (r *Router) Options(path string, handle http.Handler) {
+	r.Handle(http.MethodOptions, path, handle)
 }
 
-// POST is a shortcut for router.Handle("POST", path, handle)
-func (r *Router) POST(path string, handle http.Handler) {
-	r.Handle("POST", path, handle)
+// Post is a shortcut for router.Handle(http.MethodPost, path, handle)
+func (r *Router) Post(path string, handle http.Handler) {
+	r.Handle(http.MethodPost, path, handle)
 }
 
-// PUT is a shortcut for router.Handle("PUT", path, handle)
-func (r *Router) PUT(path string, handle http.Handler) {
-	r.Handle("PUT", path, handle)
+// Put is a shortcut for router.Handle(http.MethodPut, path, handle)
+func (r *Router) Put(path string, handle http.Handler) {
+	r.Handle(http.MethodPut, path, handle)
 }
 
-// PATCH is a shortcut for router.Handle("PATCH", path, handle)
-func (r *Router) PATCH(path string, handle http.Handler) {
-	r.Handle("PATCH", path, handle)
+// Patch is a shortcut for router.Handle(http.MethodPatch, path, handle)
+func (r *Router) Patch(path string, handle http.Handler) {
+	r.Handle(http.MethodPatch, path, handle)
 }
 
-// DELETE is a shortcut for router.Handle("DELETE", path, handle)
-func (r *Router) DELETE(path string, handle http.Handler) {
-	r.Handle("DELETE", path, handle)
+// Delete is a shortcut for router.Handle(http.MethodDelete, path, handle)
+func (r *Router) Delete(path string, handle http.Handler) {
+	r.Handle(http.MethodDelete, path, handle)
 }
 
 // Handle registers a new request handle with the given path and method.
@@ -256,7 +256,7 @@ func (r *Router) ServeFiles(path string, root http.FileSystem) {
 
 	fileServer := http.FileServer(root)
 
-	r.GET(path, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+	r.Get(path, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		ps := GetParams(req.Context())
 		req.URL.Path = ps.ByName("filepath")
 		fileServer.ServeHTTP(w, req)
@@ -284,7 +284,7 @@ func (r *Router) Lookup(method, path string) (http.Handler, Params, bool) {
 func (r *Router) allowed(path, reqMethod string) (allow string) {
 	if path == "*" { // server-wide
 		for method := range r.trees {
-			if method == "OPTIONS" {
+			if method == http.MethodOptions {
 				continue
 			}
 
@@ -298,7 +298,7 @@ func (r *Router) allowed(path, reqMethod string) (allow string) {
 	} else { // specific path
 		for method := range r.trees {
 			// Skip the requested method - we already tried this one
-			if method == reqMethod || method == "OPTIONS" {
+			if method == reqMethod || method == http.MethodOptions {
 				continue
 			}
 
@@ -331,9 +331,9 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		if handle, ps, tsr := root.getValue(path); handle != nil {
 			handle.ServeHTTP(w, req.WithContext(WithParams(req.Context(), ps)))
 			return
-		} else if req.Method != "CONNECT" && path != "/" {
+		} else if req.Method != http.MethodConnect && path != "/" {
 			code := 301 // Permanent redirect, request with GET method
-			if req.Method != "GET" {
+			if req.Method != http.MethodGet {
 				// Temporary redirect, request with same method
 				// As of Go 1.3, Go does not support status code 308.
 				code = 307
@@ -364,7 +364,7 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	if req.Method == "OPTIONS" {
+	if req.Method == http.MethodOptions {
 		// Handle OPTIONS requests
 		if r.HandleOPTIONS {
 			if allow := r.allowed(path, req.Method); len(allow) > 0 {

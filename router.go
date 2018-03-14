@@ -137,7 +137,7 @@ type Router struct {
 
 	// If enabled, the router automatically replies to OPTIONS requests.
 	// Custom OPTIONS handlers take priority over automatic replies.
-	HandleOPTIONS bool
+	HandleOptions bool
 
 	// Configurable http.Handler which is called when no matching route is
 	// found. If it is not set, http.NotFound is used.
@@ -168,7 +168,7 @@ func New() *Router {
 		RedirectTrailingSlash:  true,
 		RedirectFixedPath:      true,
 		HandleMethodNotAllowed: true,
-		HandleOPTIONS:          true,
+		HandleOptions:          true,
 	}
 }
 
@@ -366,7 +366,7 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	if req.Method == http.MethodOptions {
 		// Handle OPTIONS requests
-		if r.HandleOPTIONS {
+		if r.HandleOptions {
 			if allow := r.allowed(path, req.Method); len(allow) > 0 {
 				w.Header().Set("Allow", allow)
 				return

@@ -79,6 +79,7 @@
 package httprouter
 
 import (
+	"context"
 	"net/http"
 )
 
@@ -329,7 +330,7 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	if root := r.trees[req.Method]; root != nil {
 		if handle, ps, tsr := root.getValue(path); handle != nil {
-			handle.ServeHTTP(w, req.WithContext(WithParams(req.Context(), ps)))
+			handle.ServeHTTP(w, req.WithContext(context.WithValue(req.Context(), paramsKey{}, ps)))
 			return
 		} else if req.Method != http.MethodConnect && path != "/" {
 			code := 301 // Permanent redirect, request with GET method
@@ -364,13 +365,11 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	if req.Method == http.MethodOptions {
+	if req.Method == http.MethodOptions && r.HandleOptions {
 		// Handle OPTIONS requests
-		if r.HandleOptions {
-			if allow := r.allowed(path, req.Method); len(allow) > 0 {
-				w.Header().Set("Allow", allow)
-				return
-			}
+		if allow := r.allowed(path, req.Method); len(allow) > 0 {
+			w.Header().Set("Allow", allow)
+			return
 		}
 	} else {
 		// Handle 405
